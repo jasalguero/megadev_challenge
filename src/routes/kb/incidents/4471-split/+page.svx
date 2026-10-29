@@ -1,0 +1,64 @@
+---
+layout: runbook
+title: '#4471 split · three date problems, not one'
+owner: jasalguero
+status: proposed
+reviewed: 2026-10-29
+signature: jasalguero
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) says one issue, one fix queued. Read by cause instead of by subject
+line, its reports are three problems. The queued parser fix closes only the first one.
+
+<Callout kind="warn">
+Not known. Three problems, three tickets. The parser fix leaves two of them open.
+</Callout>
+
+## What #4471 holds
+
+<ProblemTable
+  ticket={4471}
+  repo="https://github.com/jasalguero/megadev_challenge"
+  tickets={{ parser: 1, hint: 2, 'one-day': 3 }}
+/>
+
+## The three problems
+
+**`parser`: the shared parser reads day-first dates month first.** This is the bug #4471
+describes. It hits every day-first tenant, through the app, email and the `booking-v2` form. The
+queued fix is for this one.
+
+**`hint`: the `booking-v3` form tells day-first people to type month first.** The form prints
+`MM/DD/YYYY` under its date field. People type what the hint says, and the form reads the date
+the tenant's way, day first. The parser fix does not touch this path. The fix is the hint, for the
+tenants that run `booking-v3`. Only reports sent through that form belong here.
+
+**`one-day`: dates that move by one day, not by a month.** In these reports the day and month
+are not swapped: a booking shows the day before, a client in Lisbon and a client in Toronto get
+different days for one meeting, an invite arrives before its booking. That points at time zones,
+not date order. The desk had already read these as a one-day move, then counted them under
+`parser` by tenant.
+
+## Why it was merged as one
+
+- Decision [0001](/kb/decisions/0001-dedupe-by-subject) merges on subject line. All three problems
+  produce the same subjects ("Wrong day on the invite"), so subject matching puts them in one
+  ticket. It cannot see the tenant's form or what the body says.
+- `meta.intakeTag` is a guess from the reporter's browser. It disagrees with the tenant both ways
+  (see "tagged as"), so it cannot split the ticket either.
+- The export repeats rows across its pages. Count by report id, not by row.
+
+## For the desk
+
+- Do not close #4471 as fixed when the parser fix ships: `hint` and `one-day` reports will keep
+  coming.
+- Triage date reports by tenant and channel (`causes.ts`), not by subject. A new decision record
+  should replace 0001 for date reports.
+
+<RenderStamp {signature} />

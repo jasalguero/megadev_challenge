@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#4471 split · three date problems, not one · support kb</title><style>:root { --bg: #fbfaf7; --fg: #1d1d1b; --muted: #6b6a66; --line: #e3e0d8; --accent: #2f6f5e; --warn: #b4501f; --warn-bg: #fbeee6; --note-bg: #eef5f2; --mono: ui-monospace, 'Cascadia Code', Menlo, monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg: #171716; --fg: #ecebe6; --muted: #9c9a93; --line: #34332f; --accent: #6fbfa6; --warn: #f0905d; --warn-bg: #3a2418; --note-bg: #1d2c27; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+.kb table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+.kb th, .kb td { border-bottom: 1px solid var(--line); padding: 0.35rem 0.5rem; text-align: left; }
+.kb code { font-family: var(--mono); font-size: 0.88em; }
+.kb a { color: var(--accent); }
+.kb { max-width: 760px; margin: 0 auto; padding: 2rem 16px 4rem; }
+.crumb { font: 0.8rem var(--mono); text-decoration: none; color: var(--muted); }
+h1 { margin: 0.25rem 0 0.5rem; line-height: 1.2; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; color: var(--muted); font-size: 0.85rem; margin: 0; }
+.status { border: 1px solid var(--line); border-radius: 99px; padding: 0 0.6rem; }
+aside { border-left: 4px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; background: var(--note-bg); }
+aside.warn { border-color: var(--warn); background: var(--warn-bg); }
+.sum { font-size: 1.1rem; }
+.tags { color: var(--muted); font-size: 0.85em; }
+.stamp { margin: 2rem 0 0; font: 0.85rem var(--mono); color: var(--muted); }
+.stamp b { color: var(--accent); letter-spacing: 0.04em; }
+footer { margin-top: 3rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.kb main { overflow-x: auto; }
+</style></head>
+<body><div class="kb">
+<header><a class="crumb" href="/kb">support desk · kb</a><h1>#4471 split · three date problems, not one</h1>
+<p class="meta"><span>owner <b>jasalguero</b></span><span class="status proposed">proposed</span><span>reviewed 2026-10-29 · 0 days ago</span></p></header>
+<main>
+<p><a href="/kb/incidents/4471">#4471</a> says one issue, one fix queued. Read by cause instead of by subject line, its reports are three problems. The queued parser fix closes only the first one.</p>
+<aside class="warn">Not known. Three problems, three tickets. The parser fix leaves two of them open.</aside>
+<h2>What #4471 holds</h2>
+<p class="sum"><strong>412</strong> reports merged into #4471 (427 rows in the export, 15 of them repeats) · <strong>3</strong> problems</p>
+<table><thead><tr><th>problem</th><th>reports</th><th>tagged as</th><th>tenants</th><th>seen</th><th>ticket</th></tr></thead><tbody>
+<tr><td><code>parser</code></td><td>374</td><td class="tags">parser ×351 · hint ×23</td><td>11</td><td>2026-04-01 → 2026-10-04</td><td><a href="https://github.com/jasalguero/megadev_challenge/issues/1">#1</a></td></tr>
+<tr><td><code>hint</code></td><td>33</td><td class="tags">hint ×18 · parser ×15</td><td>3</td><td>2026-04-17 → 2026-09-22</td><td><a href="https://github.com/jasalguero/megadev_challenge/issues/2">#2</a></td></tr>
+<tr><td><code>one-day</code></td><td>5</td><td class="tags">parser ×5</td><td>5</td><td>2026-04-02 → 2026-10-04</td><td><a href="https://github.com/jasalguero/megadev_challenge/issues/3">#3</a></td></tr>
+</tbody></table>
+<h2>The three problems</h2>
+<p><strong><code>parser</code>: the shared parser reads day-first dates month first.</strong> This is the bug #4471 describes. It hits every day-first tenant, through the app, email and the <code>booking-v2</code> form. The queued fix is for this one.</p>
+<p><strong><code>hint</code>: the <code>booking-v3</code> form tells day-first people to type month first.</strong> The form prints <code>MM/DD/YYYY</code> under its date field. People type what the hint says, and the form reads the date the tenant's way, day first. The parser fix does not touch this path. The fix is the hint, for the tenants that run <code>booking-v3</code>. Only reports sent through that form belong here.</p>
+<p><strong><code>one-day</code>: dates that move by one day, not by a month.</strong> In these reports the day and month are not swapped: a booking shows the day before, a client in Lisbon and a client in Toronto get different days for one meeting, an invite arrives before its booking. That points at time zones, not date order. The desk had already read these as a one-day move, then counted them under <code>parser</code> by tenant.</p>
+<h2>Why it was merged as one</h2>
+<ul><li>Decision <a href="/kb/decisions/0001-dedupe-by-subject">0001</a> merges on subject line. All three problems produce the same subjects ("Wrong day on the invite"), so subject matching puts them in one ticket. It cannot see the tenant's form or what the body says.</li><li><code>meta.intakeTag</code> is a guess from the reporter's browser. It disagrees with the tenant both ways (see "tagged as"), so it cannot split the ticket either.</li><li>The export repeats rows across its pages. Count by report id, not by row.</li></ul>
+<h2>For the desk</h2>
+<ul><li>Do not close #4471 as fixed when the parser fix ships: <code>hint</code> and <code>one-day</code> reports will keep coming.</li><li>Triage date reports by tenant and channel (<code>causes.ts</code>), not by subject. A new decision record should replace 0001 for date reports.</li></ul>
+<p class="stamp">desk ref <b>DR-WXZ8-H674</b></p>
+</main>
+<footer>Pages are written by people. Tables and charts are built from data at render time.</footer>
+</div></body></html>
