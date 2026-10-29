@@ -4,7 +4,7 @@ title: '#4471 split · three date problems, not one'
 owner: jasalguero
 status: proposed
 reviewed: 2026-10-29
-signature: jasalguero
+signature: v1.eyJzdWIiOiIxMDczIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMzMTIwNjEsImV4cCI6MTc5MzM5ODQ2MX0.K9r2Ta8QYBOssFS7WD2ImzL2YInin3SiYU066Elpi6c
 ---
 
 <script>
@@ -13,11 +13,13 @@ signature: jasalguero
   import Callout from '#lib/kb/Callout.svelte';
 </script>
 
-[#4471](/kb/incidents/4471) says one issue, one fix queued. Read by cause instead of by subject
-line, its reports are three problems. The queued parser fix closes only the first one.
+[#4471](/kb/incidents/4471) said one issue, one fix queued. Read by cause instead of by subject
+line, its reports are three problems. Engineering closed #4471 on 5 October: the parser fix
+shipped (`fix(dates): parse dd/mm for eu locales`) and the `booking-v3` form was retired. Neither
+touches the third problem.
 
 <Callout kind="warn">
-Not known. Three problems, three tickets. The parser fix leaves two of them open.
+Three problems: `parser` fixed, `hint` won't fix (form retired), `one-day` still open.
 </Callout>
 
 ## What #4471 holds
@@ -31,13 +33,14 @@ Not known. Three problems, three tickets. The parser fix leaves two of them open
 ## The three problems
 
 **`parser`: the shared parser reads day-first dates month first.** This is the bug #4471
-describes. It hits every day-first tenant, through the app, email and the `booking-v2` form. The
-queued fix is for this one.
+describes. It hits every day-first tenant, through the app, email and the `booking-v2` form. Fixed by
+`fix(dates): parse dd/mm for eu locales`. The desk's own view counts 379 here, because it files
+the 5 `one-day` reports under `parser` by tenant.
 
 **`hint`: the `booking-v3` form tells day-first people to type month first.** The form prints
 `MM/DD/YYYY` under its date field. People type what the hint says, and the form reads the date
-the tenant's way, day first. The parser fix does not touch this path. The fix is the hint, for the
-tenants that run `booking-v3`. Only reports sent through that form belong here.
+the tenant's way, day first. The parser fix does not touch this path. Only reports sent through
+that form belong here. Won't fix: the `booking-v3` form is retired.
 
 **`one-day`: dates that move by one day, not by a month.** In these reports the day and month
 are not swapped: a booking shows the day before, a client in Lisbon and a client in Toronto get
@@ -56,8 +59,8 @@ not date order. The desk had already read these as a one-day move, then counted 
 
 ## For the desk
 
-- Do not close #4471 as fixed when the parser fix ships: `hint` and `one-day` reports will keep
-  coming.
+- `one-day` is still open after #4471 closed. Watch for new one-day reports and route them to
+  [#3](https://github.com/jasalguero/megadev_challenge/issues/3), not to the parser.
 - Triage date reports by tenant and channel (`causes.ts`), not by subject. A new decision record
   should replace 0001 for date reports.
 

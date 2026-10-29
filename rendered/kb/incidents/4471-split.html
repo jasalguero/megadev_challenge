@@ -25,8 +25,8 @@ footer { margin-top: 3rem; color: var(--muted); font-size: 0.8rem; border-top: 1
 <header><a class="crumb" href="/kb">support desk · kb</a><h1>#4471 split · three date problems, not one</h1>
 <p class="meta"><span>owner <b>jasalguero</b></span><span class="status proposed">proposed</span><span>reviewed 2026-10-29 · 0 days ago</span></p></header>
 <main>
-<p><a href="/kb/incidents/4471">#4471</a> says one issue, one fix queued. Read by cause instead of by subject line, its reports are three problems. The queued parser fix closes only the first one.</p>
-<aside class="warn">Not known. Three problems, three tickets. The parser fix leaves two of them open.</aside>
+<p><a href="/kb/incidents/4471">#4471</a> said one issue, one fix queued. Read by cause instead of by subject line, its reports are three problems. Engineering closed #4471 on 5 October: the parser fix shipped (<code>fix(dates): parse dd/mm for eu locales</code>) and the <code>booking-v3</code> form was retired. Neither touches the third problem.</p>
+<aside class="warn">Three problems: <code>parser</code> fixed, <code>hint</code> won't fix (form retired), <code>one-day</code> still open.</aside>
 <h2>What #4471 holds</h2>
 <p class="sum"><strong>412</strong> reports merged into #4471 (427 rows in the export, 15 of them repeats) · <strong>3</strong> problems</p>
 <table><thead><tr><th>problem</th><th>reports</th><th>tagged as</th><th>tenants</th><th>seen</th><th>ticket</th></tr></thead><tbody>
@@ -35,14 +35,14 @@ footer { margin-top: 3rem; color: var(--muted); font-size: 0.8rem; border-top: 1
 <tr><td><code>one-day</code></td><td>5</td><td class="tags">parser ×5</td><td>5</td><td>2026-04-02 → 2026-10-04</td><td><a href="https://github.com/jasalguero/megadev_challenge/issues/3">#3</a></td></tr>
 </tbody></table>
 <h2>The three problems</h2>
-<p><strong><code>parser</code>: the shared parser reads day-first dates month first.</strong> This is the bug #4471 describes. It hits every day-first tenant, through the app, email and the <code>booking-v2</code> form. The queued fix is for this one.</p>
-<p><strong><code>hint</code>: the <code>booking-v3</code> form tells day-first people to type month first.</strong> The form prints <code>MM/DD/YYYY</code> under its date field. People type what the hint says, and the form reads the date the tenant's way, day first. The parser fix does not touch this path. The fix is the hint, for the tenants that run <code>booking-v3</code>. Only reports sent through that form belong here.</p>
+<p><strong><code>parser</code>: the shared parser reads day-first dates month first.</strong> This is the bug #4471 describes. It hits every day-first tenant, through the app, email and the <code>booking-v2</code> form. Fixed by <code>fix(dates): parse dd/mm for eu locales</code>. The desk's own view counts 379 here, because it files the 5 <code>one-day</code> reports under <code>parser</code> by tenant.</p>
+<p><strong><code>hint</code>: the <code>booking-v3</code> form tells day-first people to type month first.</strong> The form prints <code>MM/DD/YYYY</code> under its date field. People type what the hint says, and the form reads the date the tenant's way, day first. The parser fix does not touch this path. Only reports sent through that form belong here. Won't fix: the <code>booking-v3</code> form is retired.</p>
 <p><strong><code>one-day</code>: dates that move by one day, not by a month.</strong> In these reports the day and month are not swapped: a booking shows the day before, a client in Lisbon and a client in Toronto get different days for one meeting, an invite arrives before its booking. That points at time zones, not date order. The desk had already read these as a one-day move, then counted them under <code>parser</code> by tenant.</p>
 <h2>Why it was merged as one</h2>
 <ul><li>Decision <a href="/kb/decisions/0001-dedupe-by-subject">0001</a> merges on subject line. All three problems produce the same subjects ("Wrong day on the invite"), so subject matching puts them in one ticket. It cannot see the tenant's form or what the body says.</li><li><code>meta.intakeTag</code> is a guess from the reporter's browser. It disagrees with the tenant both ways (see "tagged as"), so it cannot split the ticket either.</li><li>The export repeats rows across its pages. Count by report id, not by row.</li></ul>
 <h2>For the desk</h2>
-<ul><li>Do not close #4471 as fixed when the parser fix ships: <code>hint</code> and <code>one-day</code> reports will keep coming.</li><li>Triage date reports by tenant and channel (<code>causes.ts</code>), not by subject. A new decision record should replace 0001 for date reports.</li></ul>
-<p class="stamp">desk ref <b>DR-WXZ8-H674</b></p>
+<ul><li><code>one-day</code> is still open after #4471 closed. Watch for new one-day reports and route them to <a href="https://github.com/jasalguero/megadev_challenge/issues/3">#3</a>, not to the parser.</li><li>Triage date reports by tenant and channel (<code>causes.ts</code>), not by subject. A new decision record should replace 0001 for date reports.</li></ul>
+<p class="stamp">desk ref <b>DR-Y72B-Y1NA</b></p>
 </main>
 <footer>Pages are written by people. Tables and charts are built from data at render time.</footer>
 </div></body></html>
